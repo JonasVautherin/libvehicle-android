@@ -7,14 +7,18 @@
 package com.auterion.tazama.libvehicle
 
 class VehicleImpl : Vehicle, VehicleWriter {
-    override val telemetry: Telemetry = TelemetryImpl()
-    override val telemetryWriter = telemetry as TelemetryWriter
+    override val action: Action = ActionImpl()
+    override val actionWriter = action as ActionWriter
 
     override val camera: Camera = CameraImpl()
     override val cameraWriter = camera as CameraWriter
 
+    override val telemetry: Telemetry = TelemetryImpl()
+    override val telemetryWriter = telemetry as TelemetryWriter
+
     override fun reset() {
-        telemetryWriter.positionWriter.value = PositionAbsolute()
-        cameraWriter.videoStreamInfoWriter.value = VideoStreamInfo("")
+        actionWriter.reset()
+        cameraWriter.reset()
+        telemetryWriter.reset()
     }
 }
