@@ -2,10 +2,20 @@ package com.auterion.tazama
 
 import com.auterion.tazama.libvehicle.Degrees
 import com.auterion.tazama.libvehicle.Radian
+import io.reactivex.Flowable
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class AngleTest {
+    @Test
+    fun todo_testRxJavaException() {
+        val a = Flowable.just(3)
+        val value = a.blockingFirst()
+        val b = Flowable.error<RuntimeException>(RuntimeException("blah"))
+
+        assertEquals(3, b.blockingFirst())
+    }
+
     @Test
     fun radian_defaultsToZero() {
         assertEquals(0.0, Radian().value, 0.0)

@@ -6,8 +6,12 @@
 
 package com.auterion.tazama.libvehicle.service.dummy
 
+import com.auterion.tazama.libvehicle.Altitude
 import com.auterion.tazama.libvehicle.Degrees
+import com.auterion.tazama.libvehicle.Distance
 import com.auterion.tazama.libvehicle.Euler
+import com.auterion.tazama.libvehicle.HomeDistance
+import com.auterion.tazama.libvehicle.HomePosition
 import com.auterion.tazama.libvehicle.PositionAbsolute
 import com.auterion.tazama.libvehicle.Radian
 import com.auterion.tazama.libvehicle.Speed
@@ -18,7 +22,6 @@ import com.auterion.tazama.libvehicle.service.VehicleService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -35,8 +38,10 @@ class DummyService(private val vehicleWriter: VehicleWriter) : VehicleService, C
         emitJobs.add(launch { emitPosition() })
         emitJobs.add(launch { emitVelocity() })
         emitJobs.add(launch { emitAttitude() })
-        emitJobs.add(launch { emitVideoStreamInfo() })
+        emitJobs.add(launch { emitHomePosition() })
+        emitJobs.add(launch { emitDistanceToHome() })
         emitJobs.add(launch { emitGroundSpeed() })
+        emitJobs.add(launch { emitVideoStreamInfo() })
     }
 
     private tailrec suspend fun emitPosition() {
@@ -68,16 +73,6 @@ class DummyService(private val vehicleWriter: VehicleWriter) : VehicleService, C
         emitVelocity()
     }
 
-    private tailrec suspend fun emitGroundSpeed() {
-        if (!isActive) {
-            return
-        }
-
-        vehicleWriter.telemetryWriter.groundSpeedWriter.value = Speed(1.0)
-        delay(1000)
-        emitGroundSpeed()
-    }
-
     private tailrec suspend fun emitAttitude() {
         if (!isActive) {
             return
@@ -89,6 +84,42 @@ class DummyService(private val vehicleWriter: VehicleWriter) : VehicleService, C
 
         delay(1000)
         emitAttitude()
+    }
+
+    private tailrec suspend fun emitHomePosition() {
+        if (!isActive) {
+            return
+        }
+
+        println("Emitting dummy home position")
+        vehicleWriter.telemetryWriter.homePositionWriter.value =
+            HomePosition(Degrees(0.0), Degrees(0.0), Altitude(0.0))
+
+        delay(1000)
+        emitHomePosition()
+    }
+
+    private tailrec suspend fun emitDistanceToHome() {
+        if (!isActive) {
+            return
+        }
+
+        println("Emitting dummy distance to home")
+        vehicleWriter.telemetryWriter.distanceToHomeWriter.value =
+            HomeDistance(Distance(), Altitude())
+
+        delay(1000)
+        emitDistanceToHome()
+    }
+
+    private tailrec suspend fun emitGroundSpeed() {
+        if (!isActive) {
+            return
+        }
+
+        vehicleWriter.telemetryWriter.groundSpeedWriter.value = Speed(1.0)
+        delay(1000)
+        emitGroundSpeed()
     }
 
     private tailrec suspend fun emitVideoStreamInfo() {
@@ -105,7 +136,8 @@ class DummyService(private val vehicleWriter: VehicleWriter) : VehicleService, C
     }
 
     override suspend fun destroy() {
-        emitJobs.forEach { it.cancelAndJoin() }
+        emitJobs.forEach { it.cancel() }
+        emitJobs.forEach { it.join() }
         vehicleWriter.reset()
     }
 }
