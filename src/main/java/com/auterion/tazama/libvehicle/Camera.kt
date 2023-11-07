@@ -16,11 +16,17 @@ interface Camera {
 
 interface CameraWriter {
     val videoStreamInfoWriter: MutableStateFlow<VideoStreamInfo?>
+
+    fun reset()
 }
 
 class CameraImpl : Camera, CameraWriter {
     override val videoStreamInfoWriter = MutableStateFlow<VideoStreamInfo?>(null)
     override val videoStreamInfo = videoStreamInfoWriter.asStateFlow()
+
+    override fun reset() {
+        videoStreamInfoWriter.value = null
+    }
 }
 
 data class VideoStreamInfo(val uri: String)

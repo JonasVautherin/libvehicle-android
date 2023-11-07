@@ -91,6 +91,8 @@ interface TelemetryWriter {
     val homePositionWriter: MutableStateFlow<HomePosition?>
     val distanceToHomeWriter: MutableStateFlow<HomeDistance?>
     val groundSpeedWriter: MutableStateFlow<Speed?>
+
+    fun reset()
 }
 
 class TelemetryImpl : Telemetry, TelemetryWriter {
@@ -106,4 +108,13 @@ class TelemetryImpl : Telemetry, TelemetryWriter {
     override val distanceToHome = distanceToHomeWriter.asStateFlow()
     override val groundSpeedWriter = MutableStateFlow<Speed?>(null)
     override val groundSpeed = groundSpeedWriter.asStateFlow()
+
+    override fun reset() {
+        positionWriter.value = null
+        velocityWriter.value = null
+        attitudeWriter.value = null
+        homePositionWriter.value = null
+        distanceToHomeWriter.value = null
+        groundSpeedWriter.value = null
+    }
 }

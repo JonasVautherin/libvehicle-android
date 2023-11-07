@@ -12,8 +12,9 @@ package com.auterion.tazama.libvehicle
  * is what the UI side wants.
  */
 interface Vehicle {
-    val telemetry: Telemetry
+    val action: Action
     val camera: Camera
+    val telemetry: Telemetry
 }
 
 /**
@@ -22,8 +23,9 @@ interface Vehicle {
  * be reflected in the `Vehicle` object for the consumer. Typically that is what the SDK side wants.
  */
 interface VehicleWriter {
-    val telemetryWriter: TelemetryWriter
+    val actionWriter: ActionWriter
     val cameraWriter: CameraWriter
+    val telemetryWriter: TelemetryWriter
 
     /**
      * Set all the streams to their default values (e.g. "0" or "N/A"). This is useful e.g. when
